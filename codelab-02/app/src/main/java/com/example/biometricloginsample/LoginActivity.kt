@@ -28,6 +28,8 @@ import androidx.biometric.BiometricPrompt
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.Observer
 import com.example.biometricloginsample.databinding.ActivityLoginBinding
+import java.nio.charset.Charset
+import javax.crypto.Cipher
 
 /**
  * After entering "valid" username and password, login button becomes enabled
@@ -76,6 +78,13 @@ class LoginActivity : AppCompatActivity() {
      */
     override fun onResume() {
         super.onResume()
+
+        Log.d("TEST","p1")
+        //val cipher = cryptographyManager.getInitializedCipherForEncryption(getString(R.string.secret_key_name))
+        Log.d("TEST","p2")
+        //val encrypted = cryptographyManager.encryptData(java.util.UUID.randomUUID().toString(),cipher)
+        //Log.d("TEST","Data = $encrypted")
+
 
         if (ciphertextWrapper != null) {
             if (SampleAppUser.fakeToken == null) {
