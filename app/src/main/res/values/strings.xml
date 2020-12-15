@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Steps HA</string>
+
+    <string name="comment_label_start">Start comment ID</string>
+    <string name="comment_label_end">End comment ID</string>
+    <string name="comment_bounds_button_label">Set bounds</string>
+    <string name="comment_load_button_label">Load initial data</string>
+    <string name="comment_cancel_button_label">Cancel loading</string>
+
+    <!-- Error messages -->
+    <string name="err_bounds">Please enter correct start and end comment ID</string>
+    <string name="err_network">Failed to connect to the server. Please check internet connection</string>
+    <string name="err_internal_server">Server error. Service is unavailable</string>
+    <string name="err_server_unreachable">Failed to connect to the server. Server is unreachable</string>
+</resources>

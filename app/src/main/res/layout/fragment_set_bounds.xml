@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".ui.SetBoundsFragment">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/comment_label_start"/>
+
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/etStartCommentId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
+        android:imeOptions="actionNext" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/comment_label_end"/>
+
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/etEndCommentId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
+        android:imeOptions="actionDone"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/btSetBounds"
+        style="@style/ButtonStyle"
+        android:layout_marginTop="16dp"
+        android:text="@string/comment_bounds_button_label"/>
+
+</LinearLayout>
