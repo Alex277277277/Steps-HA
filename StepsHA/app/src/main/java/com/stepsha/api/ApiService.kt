@@ -23,8 +23,4 @@ interface ApiService {
         @Query("_order") order: String = "asc"
     ): Response<List<Comment>>
 
-    companion object {
-        const val TAG = "Steps-ApiService"
-    }
-
 }

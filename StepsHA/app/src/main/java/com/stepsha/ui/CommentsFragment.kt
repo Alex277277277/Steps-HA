@@ -16,6 +16,8 @@ class CommentsFragment : Fragment() {
 
     private val vm: CommentsVM by viewModels()
 
+    private lateinit var adapter: CommentsAdapter
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -25,14 +27,22 @@ class CommentsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupUi()
+        observeVm()
+    }
+
+    private fun setupUi() {
         btLoadInitialData.setOnClickListener { vm.loadInitialComments() }
         btCancelLoading.setOnClickListener { vm.cancelLoading() }
 
-        val adapter = CommentsAdapter()
+        adapter = CommentsAdapter()
+        with(commentsList) {
+            layoutManager = LinearLayoutManager(context)
+            adapter = this@CommentsFragment.adapter
+        }
+    }
 
-        commentsList.layoutManager = LinearLayoutManager(context)
-        commentsList.adapter = adapter
-
+    private fun observeVm() {
         vm.comments.observe(viewLifecycleOwner, Observer(adapter::submitList))
         vm.loadingState().observe(viewLifecycleOwner, Observer(::renderLoadingState))
         vm.error().observe(viewLifecycleOwner, Observer(this::showError))

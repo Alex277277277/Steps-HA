@@ -2,6 +2,7 @@ package com.stepsha.exception
 
 import com.stepsha.R
 
+//App-provided exceptions
 sealed class AppException(
     val errorMessage: Int
 ) : Throwable()

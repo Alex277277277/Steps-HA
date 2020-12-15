@@ -90,6 +90,7 @@ class CommentsVM(val app: Application) : AndroidViewModel(app) {
                 loadingStateLD.value = if (loadingStateLD.value == LoadingState.INITIAL_LOADING) LoadingState.INITIALIZED else LoadingState.IDLE
                 if (e is AppException) {
                     errorLD.value = app.getString(e.errorMessage)
+                    // Here we should have been added retry logic for cases like internet connection issues.
                 }
             }
             loadingJob = null

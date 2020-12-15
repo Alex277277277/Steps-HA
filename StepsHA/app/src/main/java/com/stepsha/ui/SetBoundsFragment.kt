@@ -53,10 +53,14 @@ class SetBoundsFragment : Fragment() {
         vm.router().observe(viewLifecycleOwner, Observer(this::navigate))
     }
 
+    // Navigate to the specified destination
+    // Usually this method should be placed somewhere in a BaseFragment, but for the sake of simplicity it lives here
     private fun navigate(routeInfo: RouteInfo) {
         findNavController().navigate(routeInfo.routeId, routeInfo.params, routeInfo.navOptions)
     }
 
+    // Display error message in for of toast
+    // Usually this method should be placed somewhere in a BaseFragment, but for the sake of simplicity it lives here
     private fun showError(error: String) {
         Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show()
     }
