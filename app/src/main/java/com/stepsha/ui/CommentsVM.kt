@@ -50,7 +50,11 @@ class CommentsVM(val app: Application) : AndroidViewModel(app) {
 
     // LiveData for observing the cache (db) changes
     val comments = repo.getComments().toLiveData(
-        pageSize = 10,
+        config = PagedList.Config.Builder()
+            .setPageSize(PAGE_SIZE)
+            .setPrefetchDistance(PREFETCH_DISTANCE)
+            .setEnablePlaceholders(false)
+            .build(),
         boundaryCallback = boundaryCallback
     )
 
@@ -105,7 +109,8 @@ class CommentsVM(val app: Application) : AndroidViewModel(app) {
     }
 
     companion object {
-        const val PAGE_SIZE = 10L
+        const val PAGE_SIZE = 10
+        const val PREFETCH_DISTANCE = 10
         const val MIN_LOADING_DELAY = 3 * 1000L   // minimum loading delay of 3 seconds
     }
 
