@@ -2,44 +2,53 @@ package com.stepsha.ui
 
 import android.app.Application
 import android.os.Bundle
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagedList
 import androidx.paging.toLiveData
+import com.hadilq.liveevent.LiveEvent
 import com.stepsha.App
 import com.stepsha.entity.Bounds
 import com.stepsha.entity.Comment
-import kotlinx.coroutines.delay
+import com.stepsha.exception.AppException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.lang.IllegalStateException
 
 class CommentsVM(val app: Application) : AndroidViewModel(app) {
 
+    enum class LoadingState {
+        INITIALIZED,
+        INITIAL_LOADING,
+        LOADING,
+        IDLE
+    }
+
     private val repo = App.appGraph.getRepo()
 
     private var initialized = false
     private lateinit var bounds: Bounds
+    private var loadingJob: Job? = null
 
-    private val loadingLD = MutableLiveData<Boolean>().also { it.value = false }
-    fun loading() = loadingLD as LiveData<Boolean>
+    private val loadingStateLD = MutableLiveData<LoadingState>().also { it.value = LoadingState.INITIALIZED }
+    fun loadingState() = loadingStateLD as LiveData<LoadingState>
 
-    private val initialLoadingStateLD = MutableLiveData<Boolean>().also { it.value = true }
-    fun initialLoadingState() = initialLoadingStateLD as LiveData<Boolean>
+    private val errorLD = LiveEvent<String>()
+    fun error() = errorLD as LiveData<String>
 
     private val boundaryCallback = object: PagedList.BoundaryCallback<Comment>() {
 
         override fun onItemAtEndLoaded(itemAtEnd: Comment) {
             // Here we fetch the next chunk of items from the network (server)
             // This happens when we run out of data from cache (db)
-            Log.d("Steps", "onItemAtEndLoaded ${itemAtEnd.id}")
             val bounds = calculateNextBounds(itemAtEnd.id) ?: return
             loadComments(bounds)
         }
     }
 
+    // LiveData for observing the cache (db) changes
     val comments = repo.getComments().toLiveData(
         pageSize = 10,
         boundaryCallback = boundaryCallback
@@ -51,51 +60,52 @@ class CommentsVM(val app: Application) : AndroidViewModel(app) {
         initialized = true
     }
 
+    // Loads initial chunk of comments
     fun loadInitialComments() {
-        val lastId = bounds.startId - 1
-        val bounds = calculateNextBounds(lastId) ?: return
+        val bounds = calculateNextBounds(bounds.startId - 1) ?: return
         loadComments(bounds, true, MIN_LOADING_DELAY)
     }
 
+    // Calculates the next chunk of comments to be loaded
     private fun calculateNextBounds(lastId: Long): Bounds? {
-        Log.d("Steps", "calculateNextBounds $lastId")
-        val upperBoundLimit = bounds.endId
-
         val lowerBound = lastId + 1
-        if (lowerBound > upperBoundLimit) return null
+        if (lowerBound > bounds.endId) return null
 
-        var upperBound = lastId + CHUNK_SIZE
-        if (upperBound > upperBoundLimit) {
-            upperBound = upperBoundLimit
+        var upperBound = lastId + PAGE_SIZE
+        if (upperBound > bounds.endId) {
+            upperBound = bounds.endId
         }
 
-        Log.d("Steps", "calculateNextBounds done ${Bounds(lastId + 1, upperBound)}")
-        return Bounds(lastId + 1, upperBound)
+        return Bounds(lowerBound, upperBound)
     }
 
+    // Loads a chunk of comments from the network (server) into the cache (db)
     private fun loadComments(bounds: Bounds, replace: Boolean = false, minDelay: Long = 0L) {
-        Log.d("Steps", "Replace comment - 1 = $replace")
-        viewModelScope.launch {
-            loadingLD.value = true
+        loadingJob = viewModelScope.launch {
+            loadingStateLD.value = if (loadingStateLD.value == LoadingState.INITIALIZED) LoadingState.INITIAL_LOADING else LoadingState.LOADING
             try {
-                val startTime = System.currentTimeMillis()
-                repo.loadComments(bounds, replace)
-                val delta = System.currentTimeMillis() - startTime - minDelay
-                if (delta > 0) {
-                    delay(delta)
-                }
-                initialLoadingStateLD.value = false
+                repo.loadComments(bounds, replace, minDelay)
+                loadingStateLD.value = LoadingState.IDLE
             } catch (e: Throwable) {
-                Log.d("Steps", "Loading initial comments - error $e")
-                // TODO handle errors
+                loadingStateLD.value = if (loadingStateLD.value == LoadingState.INITIAL_LOADING) LoadingState.INITIALIZED else LoadingState.IDLE
+                if (e is AppException) {
+                    errorLD.value = app.getString(e.errorMessage)
+                }
             }
-            loadingLD.value = false
+            loadingJob = null
+        }
+    }
+
+    // Cancels initial loading if it's currently in progress
+    fun cancelLoading() {
+        if (loadingStateLD.value == LoadingState.INITIAL_LOADING) {
+            loadingJob?.cancel()
         }
     }
 
     companion object {
-        const val CHUNK_SIZE = 10L
-        const val MIN_LOADING_DELAY = 3 * 1000L   // minimum loading delay of 5 seconds
+        const val PAGE_SIZE = 10L
+        const val MIN_LOADING_DELAY = 3 * 1000L   // minimum loading delay of 3 seconds
     }
 
 }

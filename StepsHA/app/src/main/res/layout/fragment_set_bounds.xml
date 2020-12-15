@@ -35,15 +35,8 @@
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/btSetBounds"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/button_height"
+        style="@style/ButtonStyle"
         android:layout_marginTop="16dp"
-        android:background="@drawable/button_shape"
-        android:layout_gravity="center_horizontal"
-        android:gravity="center"
-        android:textSize="16sp"
-        android:textColor="@android:color/white"
-        android:textStyle="bold"
         android:text="@string/comment_bounds_button_label"/>
 
 </LinearLayout>

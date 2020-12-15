@@ -3,26 +3,40 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="16dp"
     tools:context=".ui.CommentsFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/commentsList"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:visibility="invisible"/>
 
-    <TextView
-        android:id="@+id/btLoadInitialData"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:layout_gravity="center"
-        android:background="@android:color/holo_blue_light"
-        android:padding="16dp"
-        android:text="@string/comment_load_button_label" />
+        android:gravity="center_horizontal">
 
-    <ProgressBar
-        android:id="@+id/loading"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:visibility="invisible" />
+        <TextView
+            android:id="@+id/btLoadInitialData"
+            style="@style/ButtonStyle"
+            android:text="@string/comment_load_button_label" />
+
+        <TextView
+            android:id="@+id/btCancelLoading"
+            style="@style/ButtonStyle"
+            android:text="@string/comment_cancel_button_label"
+            android:visibility="invisible"/>
+
+        <ProgressBar
+            android:id="@+id/loading"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_marginTop="8dp"
+            android:visibility="invisible" />
+
+    </LinearLayout>
 
 </FrameLayout>

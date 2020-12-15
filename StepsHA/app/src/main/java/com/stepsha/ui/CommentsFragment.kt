@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -25,6 +26,7 @@ class CommentsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         btLoadInitialData.setOnClickListener { vm.loadInitialComments() }
+        btCancelLoading.setOnClickListener { vm.cancelLoading() }
 
         val adapter = CommentsAdapter()
 
@@ -32,23 +34,42 @@ class CommentsFragment : Fragment() {
         commentsList.adapter = adapter
 
         vm.comments.observe(viewLifecycleOwner, Observer(adapter::submitList))
-        vm.loading().observe(viewLifecycleOwner, Observer(::renderLoading))
-        vm.initialLoadingState().observe(viewLifecycleOwner, Observer(::renderState))
+        vm.loadingState().observe(viewLifecycleOwner, Observer(::renderLoadingState))
+        vm.error().observe(viewLifecycleOwner, Observer(this::showError))
         vm.initialize(arguments)
     }
 
-    private fun renderLoading(isLoading: Boolean) {
-        loading.visibility = if (isLoading) View.VISIBLE else View.INVISIBLE
+    private fun renderLoadingState(state: CommentsVM.LoadingState) {
+        when(state) {
+            CommentsVM.LoadingState.INITIALIZED -> {
+                loading.visibility = View.INVISIBLE
+                btLoadInitialData.visibility = View.VISIBLE
+                btCancelLoading.visibility = View.INVISIBLE
+                commentsList.visibility = View.INVISIBLE
+            }
+            CommentsVM.LoadingState.INITIAL_LOADING -> {
+                loading.visibility = View.VISIBLE
+                btLoadInitialData.visibility = View.INVISIBLE
+                btCancelLoading.visibility = View.VISIBLE
+                commentsList.visibility = View.INVISIBLE
+            }
+            CommentsVM.LoadingState.LOADING -> {
+                loading.visibility = View.VISIBLE
+                btLoadInitialData.visibility = View.INVISIBLE
+                btCancelLoading.visibility = View.INVISIBLE
+                commentsList.visibility = View.VISIBLE
+            }
+            CommentsVM.LoadingState.IDLE -> {
+                loading.visibility = View.INVISIBLE
+                btLoadInitialData.visibility = View.INVISIBLE
+                btCancelLoading.visibility = View.INVISIBLE
+                commentsList.visibility = View.VISIBLE
+            }
+        }
     }
 
-    private fun renderState(isInitialState: Boolean) {
-        if (isInitialState) {
-            commentsList.visibility = View.INVISIBLE
-            btLoadInitialData.visibility = View.VISIBLE
-        } else {
-            commentsList.visibility = View.VISIBLE
-            btLoadInitialData.visibility = View.INVISIBLE
-        }
+    private fun showError(error: String) {
+        Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show()
     }
 
 }
